@@ -26,18 +26,53 @@ public class Main {
         }
 
         MDP mdp = new MDP(world, 0.85, 0.99);
+        Policy p = new Policy(world);  // random policy
 
-        State t1 = world.getState(0, 0);
-        State t2 = world.getState(2, 3);
-        State t3 = world.getState(1, 1);
+        // begin policy iteration
+        boolean policyChanged; // terminate when the policy stops changing
+        MDP.ACTION[] prev_action = new MDP.ACTION[world.states.length]; // maintain list of previous actions to prevent cycles
+        do {
+            policyChanged = false;
+            // evaluate the policy
+            double[] evaluation = p.evaluate(mdp);
+            // for each state
+            for(State s: world.states) {
+                // select the best action
+                double bestQ = Integer.MIN_VALUE;
+                MDP.ACTION bestAction = null;
+                for (MDP.ACTION a : MDP.ACTION.values()) {
+                    double[] transition_prob = mdp.transition(s, a);
+                    double q = 0;
+                    for(int j=0; j < world.states.length; j++) {
+                        q += transition_prob[j] * evaluation[j];
+                    }
+                    if(q > bestQ){
+                        bestQ = q;
+                        bestAction = a;
+                    }
+                }
+                // update the policy
+                // if the best action is an improvement and if it doesn't cause an endless cycle
+                if(p.getAction(s) != bestAction && bestAction != prev_action[s.index]){
+                    prev_action[s.index] = p.getAction(s);
+                    System.out.println(s);
+                    System.out.println("Swapping action " + MDP.actionToString(p.getAction(s)) + " for action " + MDP.actionToString(bestAction));
+                    double val_sum = 0;
+                    for(Double d : evaluation){val_sum += d;}
+                    System.out.println("Eval: " + val_sum);
+                    policyChanged = true;
+                    p.updateAction(s, bestAction);
+                }
+            }
+        } while(policyChanged);
 
-        System.out.println(t2);
-        double[] probs = mdp.transition(t2, MDP.ACTION.EAST);
-        for(int i=0; i < probs.length; i++){
-            System.out.println("state " + i + ": " + probs[i]);
+        // print out the policy
+        double[] evaluation = p.evaluate(mdp);
+        for(State s : world.states) {
+            System.out.println(s);
+            System.out.println("Policy: " + MDP.actionToString(p.getAction(s)));
+            System.out.println("EU : " + evaluation[s.index]);
         }
-        System.out.print("\n");
-
 
     }
 }

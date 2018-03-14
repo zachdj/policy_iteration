@@ -12,7 +12,7 @@ public class MDP {
     // states are represented by a GridWorld object
     private GridWorld gridworld;
     private double move_success_prob;  // the probability movement will be successful in its intended direction
-    private double discount;
+    public double discount;
 
     // actions that the UAV can take
     public enum ACTION {
@@ -126,17 +126,14 @@ public class MDP {
      * @return the reward obtained from the (s, a, s') tuple
      */
     public double reward(State s, ACTION a, State s_new){
-        if(s.equals(s_new)) {
-            return 0;
-        } else {
-            return s_new.reward;
-        }
+        return s_new.reward;
     }
 
     /**
      * Constructor for the MDP
      * @param gridWorld the GridWorld object specifying the states and rewards for this MDP
      * @param success_prob the probability of successfully moving in the intended direction
+     * @param discount the amount to discount the value of future states
      */
     public MDP(GridWorld gridWorld, double success_prob, double discount){
         this.gridworld = gridWorld;
