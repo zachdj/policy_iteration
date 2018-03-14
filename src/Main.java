@@ -1,8 +1,10 @@
+import java.io.PrintWriter;
+
 public class Main {
 
     public static void main(String[] args) {
 
-        // create a GridWorld and add states for this world
+        // create a GridWorld and add states for this problem
         GridWorld world = new GridWorld(4, 4);
         try {
             world.addState(0, 0);
@@ -25,12 +27,12 @@ public class Main {
             System.out.println(ex.getMessage());
         }
 
+        // Create the MDP and the initial randomized policy
         MDP mdp = new MDP(world, 0.85, 0.99);
         Policy p = new Policy(world);  // random policy
 
         // begin policy iteration
-        boolean policyChanged; // terminate when the policy stops changing
-        MDP.ACTION[] prev_action = new MDP.ACTION[world.states.length]; // maintain list of previous actions to prevent cycles
+        boolean policyChanged;
         do {
             policyChanged = false;
             // evaluate the policy
@@ -55,28 +57,22 @@ public class Main {
                         bestAction = a;
                     }
                 }
+
                 // update the policy
-                // if the best action is an improvement and if it doesn't cause an endless cycle
-                if(p.getAction(s) != bestAction && bestAction != prev_action[s.index]){
-                    prev_action[s.index] = p.getAction(s);
-                    System.out.println(s);
-                    System.out.println("Swapping action " + MDP.actionToString(p.getAction(s)) + " for action " + MDP.actionToString(bestAction));
-                    double val_sum = 0;
-                    for(Double d : evaluation){val_sum += d;}
-                    System.out.println("Eval: " + val_sum);
+                if(p.getAction(s) != bestAction) {
                     policyChanged = true;
                     p.updateAction(s, bestAction);
                 }
             }
-        } while(policyChanged);
+        } while(policyChanged);  // loop until the policy stabilizes
 
         // print out the policy
-        double[] evaluation = p.evaluate(mdp);
+        PrintWriter pw = new PrintWriter(System.out);
+        pw.printf("%12s | %7s |\n", "State (x, y)", "Action");
+        pw.println("-------------|---------|");
         for(State s : world.states) {
-            System.out.println(s);
-            System.out.println("Policy: " + MDP.actionToString(p.getAction(s)));
-            System.out.println("EU : " + evaluation[s.index]);
+            pw.printf("%12s | %7s |\n", s, MDP.actionToString(p.getAction(s)));
         }
-
+        pw.flush();
     }
 }
