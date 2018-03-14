@@ -12,10 +12,21 @@ public class MDP {
     // states are represented by a GridWorld object
     private GridWorld gridworld;
     private double move_success_prob;  // the probability movement will be successful in its intended direction
+    private double discount;
 
     // actions that the UAV can take
     public enum ACTION {
         NORTH, SOUTH, EAST, WEST
+    }
+
+    public static String actionToString(ACTION a) {
+        switch(a) {
+            case NORTH: return "N";
+            case SOUTH: return "S";
+            case EAST: return "E";
+            case WEST: return "W";
+            default: return "nop";
+        }
     }
 
     /**
@@ -46,21 +57,25 @@ public class MDP {
                 intended_y += 1;
                 ortho_x1 -= 1;
                 ortho_x2 += 1;
+                break;
 
             case SOUTH:
                 intended_y -= 1;
                 ortho_x1 -= 1;
                 ortho_x2 += 1;
+                break;
 
             case EAST:
                 intended_x += 1;
                 ortho_y1 -= 1;
                 ortho_y2 += 1;
+                break;
 
             case WEST:
                 intended_x -= 1;
                 ortho_y1 -= 1;
                 ortho_y2 += 1;
+                break;
         }
 
         double[] probabilities = new double[this.gridworld.states.length];  // array of zeros for each state
@@ -123,8 +138,9 @@ public class MDP {
      * @param gridWorld the GridWorld object specifying the states and rewards for this MDP
      * @param success_prob the probability of successfully moving in the intended direction
      */
-    public MDP(GridWorld gridWorld, double success_prob){
+    public MDP(GridWorld gridWorld, double success_prob, double discount){
         this.gridworld = gridWorld;
         this.move_success_prob = success_prob;
+        this.discount = discount;
     }
 }
