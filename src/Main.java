@@ -71,7 +71,25 @@ public class Main {
         pw.printf("%12s | %7s |\n", "State (x, y)", "Action");
         pw.println("-------------|---------|");
         for(State s : world.states) {
-            pw.printf("%12s | %7s |\n", s, MDP.actionToString(p.getAction(s)));
+            if(s.reachable) {
+                pw.printf("%12s | %7s |\n", s, MDP.actionToString(p.getAction(s)));
+            } else {
+                pw.printf("%12s | %7s |\n", s, "N/A");
+            }
+        }
+
+        pw.println("\nVisualization:");
+        for(int y=world.vertical_cells-1; y>=0; y--){
+            pw.print("|");
+            for(int x=0; x < world.horizontal_cells; x++){
+                State s = world.getState(x, y);
+                if(s.reachable){
+                    pw.print(" " + MDP.actionToString(p.getAction(s)) + " |");
+                } else{
+                    pw.print("   |");
+                }
+            }
+            pw.print("\n");
         }
         pw.flush();
     }
