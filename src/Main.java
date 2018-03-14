@@ -38,16 +38,20 @@ public class Main {
             // for each state
             for(State s: world.states) {
                 // select the best action
-                double bestQ = Integer.MIN_VALUE;
+                double bestVal = Integer.MIN_VALUE;
                 MDP.ACTION bestAction = null;
                 for (MDP.ACTION a : MDP.ACTION.values()) {
                     double[] transition_prob = mdp.transition(s, a);
                     double q = 0;
-                    for(int j=0; j < world.states.length; j++) {
-                        q += transition_prob[j] * evaluation[j];
+                    double future = 0;
+                    for(State j: world.states) {
+                        q += transition_prob[j.index] * mdp.reward(s, a, j);
+                        future += transition_prob[j.index] * evaluation[j.index];
                     }
-                    if(q > bestQ){
-                        bestQ = q;
+                    future = mdp.discount * future;
+                    double val = q + future;
+                    if(val > bestVal){
+                        bestVal = val;
                         bestAction = a;
                     }
                 }
