@@ -68,6 +68,7 @@ public class Main {
 
         // print out the policy
         PrintWriter pw = new PrintWriter(System.out);
+        pw.println("\n Converged Policy:");
         pw.printf("%12s | %7s |\n", "State (x, y)", "Action");
         pw.println("-------------|---------|");
         for(State s : world.states) {
@@ -78,7 +79,7 @@ public class Main {
             }
         }
 
-        pw.println("\nVisualization:");
+        pw.println("\nVisualization as Grid:");
         for(int y=world.vertical_cells-1; y>=0; y--){
             pw.print("|");
             for(int x=0; x < world.horizontal_cells; x++){
